@@ -36,7 +36,7 @@ def index(request):
     posts = Post.objects.all()
 
     post = posts.annotate(num_likes=Count('likes', distinct=True))
-    most_popular_posts = list(post.order_by('num_likes'))[-5:]
+    most_popular_posts = post.order_by('-num_likes')[5:]
 
     fresh_posts = posts.order_by('published_at')
     most_fresh_posts = list(fresh_posts)[-5:]

@@ -36,13 +36,13 @@ def index(request):
     posts = Post.objects.all()
     tags = Tag.objects.all()
 
-    post = posts.annotate(num_likes=Count('likes', distinct=True))
+    post = posts.annotate(num_likes=Count('likes'))
     most_popular_posts = list(post.order_by('num_likes'))[-5:]
 
     fresh_posts = posts.order_by('published_at')
     most_fresh_posts = list(fresh_posts)[-5:]
 
-    popular_tags = tags.annotate(num_tags=Count('posts', distinct=True))
+    popular_tags = tags.annotate(num_tags=Count('posts'))
     most_popular_tags = list(popular_tags.order_by('num_tags'))[-5:]
 
     context = {

@@ -7,8 +7,8 @@ def get_related_posts_count(tag):
     return tag.posts.count()
 
 
-def get_likes_count(post):
-    return post['like']
+# def get_likes_count(post):
+#     return post['like']
 
 
 def serialize_post(post):
@@ -33,7 +33,7 @@ def serialize_tag(tag):
 
 
 def index(request):
-    posts = Post.objects.all()
+    posts = Post.objects.all().prefetch_related('author')
     tags = Tag.objects.all()
 
     post = posts.annotate(num_likes=Count('likes'))

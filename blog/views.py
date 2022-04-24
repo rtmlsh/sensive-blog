@@ -7,16 +7,25 @@ def get_related_posts_count(tag):
     return tag.posts.count()
 
 
-# def get_likes_count(post):
-#     return post['like']
+def get_count_comments():
+    count_comments = Post.objects.annotate(num_comments=Count('comments'))
+    return count_comments
+
+
+def serialize_post_optimized(post):
+    pass
 
 
 def serialize_post(post):
+    count_comments = post.comments.annotate(num_comments=Count('comments'))
+    # count_comments = get_count_comments()
     return {
         'title': post.title,
         'teaser_text': post.text[:200],
         'author': post.author.username,
-        'comments_amount': len(Comment.objects.filter(post=post)),
+        # 'comments_amount': len(Comment.objects.filter(post=post)),
+        # 'comments_amount': count_comments.get(id=post.id).num_comments,
+        'comments_amount': count_comments.num_comments,
         'image_url': post.image.url if post.image else None,
         'published_at': post.published_at,
         'slug': post.slug,

@@ -53,7 +53,7 @@ def index(request):
         'most_popular_posts': [
             serialize_post_optimized(post) for post in most_popular_posts[:5]
         ],
-        'page_posts': [serialize_post(post) for post in most_fresh_posts[:5]],
+        'page_posts': [serialize_post_optimized(post) for post in most_fresh_posts[:5]],
         'popular_tags': [serialize_tag(tag) for tag in most_popular_tags],
     }
     return render(request, 'index.html', context)
@@ -95,7 +95,7 @@ def post_detail(request, slug):
         'post': serialized_post,
         'popular_tags': [serialize_tag(tag) for tag in most_popular_tags],
         'most_popular_posts': [
-            serialize_post(post) for post in most_popular_posts
+            serialize_post_optimized(post) for post in most_popular_posts
         ],
     }
     return render(request, 'post-details.html', context)
@@ -116,7 +116,7 @@ def tag_filter(request, tag_title):
         'popular_tags': [serialize_tag(tag) for tag in most_popular_tags],
         'posts': [serialize_post(post) for post in related_posts],
         'most_popular_posts': [
-            serialize_post(post) for post in most_popular_posts
+            serialize_post_optimized(post) for post in most_popular_posts
         ],
     }
     return render(request, 'posts-list.html', context)

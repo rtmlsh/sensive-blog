@@ -5,12 +5,31 @@ from django.db.models import Count
 
 
 class PostQuerySet(models.QuerySet):
-    def year(self, year):
-        posts_at_year = self.filter(published_at__year=year).order_by('published_at')
-        return posts_at_year
+
+    def popular(self):
+        most_popular_posts = self.annotate(likes_count=Count('likes')).order_by('-likes_count')
+        return most_popular_posts
+
+
+    def fresh(self):
+        fresh_posts = self.annotate(comments_count=Count('comments')).order_by('-published_at')
+        return fresh_posts
+
+
+class CommentQuerySet(models.QuerySet):
+
+    def fetch_with_comments_count(self, most_popular_posts):
+        most_popular_posts_ids = [post.id for post in most_popular_posts]
+        posts_with_comments = self.filter(id__in=most_popular_posts_ids).annotate(comments_count=Count('comments'))
+        ids_and_comments = posts_with_comments.values_list('id', 'comments_count')
+        count_for_id = dict(ids_and_comments)
+        for post in most_popular_posts:
+            post.comments_count = count_for_id[post.id]
+        return most_popular_posts
 
 
 class TagQuerySet(models.QuerySet):
+
     def popular(self):
         popular_tags = self.annotate(num_tags=Count('posts')).order_by('-num_tags')
         return popular_tags
@@ -23,6 +42,7 @@ class Post(models.Model):
     image = models.ImageField('Картинка')
     published_at = models.DateTimeField('Дата и время публикации')
     objects = PostQuerySet.as_manager()
+    count_comments = CommentQuerySet.as_manager()
     author = models.ForeignKey(
         User,
         on_delete=models.CASCADE,

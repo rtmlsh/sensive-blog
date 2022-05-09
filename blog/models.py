@@ -7,34 +7,44 @@ from django.db.models import Count, Prefetch
 class PostQuerySet(models.QuerySet):
 
     def popular(self):
-        most_popular_posts = self.annotate(likes_count=Count('likes')).order_by('-likes_count')
+        most_popular_posts = self\
+            .annotate(likes_count=Count('likes'))\
+            .order_by('-likes_count')
         return most_popular_posts
 
-
     def fresh(self):
-        fresh_posts = self.annotate(comments_count=Count('comments')).order_by('-published_at')
+        fresh_posts = self\
+            .annotate(comments_count=Count('comments'))\
+            .order_by('-published_at')
         return fresh_posts
-
 
     def fetch_with_comments_count(self):
         most_popular_posts_ids = [post.id for post in self]
-        posts_with_comments = Post.objects.filter(id__in=most_popular_posts_ids).annotate(comments_count=Count('comments'))
-        ids_and_comments = posts_with_comments.values_list('id', 'comments_count')
+        posts_with_comments = Post.objects\
+            .filter(id__in=most_popular_posts_ids)\
+            .annotate(comments_count=Count('comments'))
+        ids_and_comments = posts_with_comments\
+            .values_list('id', 'comments_count')
         count_for_id = dict(ids_and_comments)
         for post in self:
             post.comments_count = count_for_id[post.id]
         return self
 
-
     def prefetch_posts_count_for_tags(self):
-        tags_with_counted_posts = Tag.objects.annotate(posts_count=Count('posts'))
-        return self.prefetch_related(Prefetch('tags', queryset=tags_with_counted_posts))
+        tags_with_counted_posts = Tag.objects\
+            .annotate(posts_count=Count('posts'))
+        return self.prefetch_related(Prefetch(
+            'tags',
+            queryset=tags_with_counted_posts
+        ))
 
 
 class TagQuerySet(models.QuerySet):
 
     def popular(self):
-        popular_tags = self.annotate(num_tags=Count('posts')).order_by('-num_tags')
+        popular_tags = self\
+            .annotate(num_tags=Count('posts'))\
+            .order_by('-num_tags')
         return popular_tags
 
 

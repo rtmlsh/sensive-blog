@@ -7,10 +7,10 @@ from django.db.models import Count, Prefetch
 class PostQuerySet(models.QuerySet):
 
     def popular(self):
-        most_popular_posts = self\
+        popular_posts = self\
             .annotate(likes_count=Count('likes'))\
             .order_by('-likes_count')
-        return most_popular_posts
+        return popular_posts
 
     def fresh(self):
         fresh_posts = self\
@@ -19,9 +19,9 @@ class PostQuerySet(models.QuerySet):
         return fresh_posts
 
     def fetch_with_comments_count(self):
-        most_popular_posts_ids = [post.id for post in self]
+        popular_posts_ids = [post.id for post in self]
         posts_with_comments = Post.objects\
-            .filter(id__in=most_popular_posts_ids)\
+            .filter(id__in=popular_posts_ids)\
             .annotate(comments_count=Count('comments'))
         ids_and_comments = posts_with_comments\
             .values_list('id', 'comments_count')

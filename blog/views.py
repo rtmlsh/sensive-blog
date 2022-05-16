@@ -109,8 +109,7 @@ def tag_filter(request, tag_title):
         .prefetch_posts_count_for_tags()\
         .fetch_with_comments_count()
 
-    related_posts = tag.posts.all()\
-        .prefetch_related('author')\
+    related_posts = tag.posts.prefetch_related('author')\
         .prefetch_posts_count_for_tags()\
         .fetch_with_comments_count()[:20]
 
